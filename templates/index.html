@@ -17,21 +17,21 @@
           try{
             wrapper += `<tr><td>
               <img src="data:image/jpg;base64,${response['planes'][i]}"/>
-            </td><td>Aviones</td></td>`;
+            </td><td>Aviones</td></td><td id="Avion_${i}"></td></tr>`;
           }catch(err){}
         }
         for(let i in response['cars']){
           try{
             wrapper += `<tr><td>
               <img src="data:image/jpg;base64,${response['cars'][i]}"/>
-            </td><td>Carros</td></tr>`;
+            </td><td>Carros</td><td id="Auto_${i}"></td></tr>`;
           }catch(err){}
         }
         for(let i in response['bikes']){
           try{
             wrapper += `<tr><td>
               <img src="data:image/jpg;base64,${response['bikes'][i]}"/>
-            </td><td name="Label">Motos</td></tr>`;
+            </td><td name="Label">Motos</td><td id="Moto_${i}"></td></tr>`;
           }catch(err){}
         }
         tbody.innerHTML = wrapper;
@@ -65,7 +65,31 @@
           body: JSON.stringify(body)
       })
       .then(response => response.json())
-      .then(response => { console.log(response)})
+      .then(response => {
+        console.log(response);
+        let probabilitiesCars = response["Probabilities"]["Cars"];
+        let probabilitiesPlanes = response["Probabilities"]["Planes"];
+        let probabilitiesBikes = response["Probabilities"]["Bikes"];
+        let planePercent = response["RealPercent"]["Planes"] * 100;
+        let bikePercent = response["RealPercent"]["Bikes"] * 100;
+        let carPercent = response["RealPercent"]["Cars"] * 100;
+        for(let i in probabilitiesCars){
+          try{
+            document.getElementById(`Auto_${i}`).innerHTML = `${probabilitiesCars[i] === 1 ? "Carro" : "Desconocido"} - ${carPercent }%`;
+          }catch(err){console.log(err)}
+        }
+        for(let i in probabilitiesPlanes){
+          try{
+            document.getElementById(`Avion_${i}`).innerHTML = `${probabilitiesPlanes[i] === 1 ? "Avión" : "Desconocido"} - ${planePercent}%`;
+          }catch(err){}
+        }
+        for(let i in probabilitiesBikes){
+          try{
+            document.getElementById(`Moto_${i}`).innerHTML = `${probabilitiesBikes[i] === 1 ? "Moto" : "Desconocido"} - ${bikePercent }%`;
+          }catch(err){}
+        }
+        console.log("Success");
+      })
       .catch(err => console.log(err));
     }
     GetImages();
@@ -108,6 +132,7 @@
                       </svg>
                     </button>
                   </th>
+                  <th>Resultado y precisión</th>
                 </tr>
               </thead>
               <tbody id="tbody">
